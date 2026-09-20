@@ -11,7 +11,7 @@ export default {
   // Must match the domain the site is actually served from, or the feed and
   // sitemap will point somewhere else. Vercel gives you a <project>.vercel.app
   // address; swap in a custom domain here once you attach one.
-  url: 'https://saksham-blog.vercel.app',
+  url: 'https://saksamgyawaliblogsite.vercel.app',
 
   author: 'Saksham Gyawali',
   email: '',
