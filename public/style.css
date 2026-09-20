@@ -1,0 +1,853 @@
+/* ---------------------------------------------------------------- tokens */
+
+:root {
+  /* Palette taken from backend-from-first-principle.vercel.app: a near-neutral
+     warm paper, a brick accent that brightens to coral in the dark, and code
+     that keeps its own dark surface in both modes. Both palettes are written
+     once here; the mode blocks underneath only map them onto the working
+     tokens, so a colour is edited in one place. */
+  --paper-light: #fcfcfa;
+  --ink-light: #171612;
+  --muted-light: #6f6a5e;
+  --faint-light: #e3e0d8;
+  --tint-light: #f4f3ef;
+  /* The accent has exactly one job: marking a reference out of the text — a
+     link in the prose, or a sidenote mark. Chrome, tags and dates never use it. */
+  --accent-light: #c1391c;
+  --code-bg-light: #16161a;
+
+  --paper-dark: #0f0f0e;
+  --ink-dark: #edebe5;
+  --muted-dark: #918c81;
+  --faint-dark: #2a2926;
+  --tint-dark: #181815;
+  --accent-dark: #ff7a4d;
+  --code-bg-dark: #131317;
+
+  /* Code sets on its own dark ground whichever mode the page is in. */
+  --code-ink: #e6e4de;
+
+  /* Light is the default, for a reader with no system preference. */
+  --paper: var(--paper-light);
+  --ink: var(--ink-light);
+  --muted: var(--muted-light);
+  --faint: var(--faint-light);
+  --tint: var(--tint-light);
+  --accent: var(--accent-light);
+  --code-bg: var(--code-bg-light);
+
+  color-scheme: light;
+
+  /* Three zones: standing masthead, text at a reading measure, annotations. */
+  --masthead: 10.5rem;
+  --stile: 3.5rem;
+  --measure: 33rem;
+  --gutter: 2rem;
+  --margin: 9rem;
+  --page: calc(
+    var(--masthead) + var(--stile) + var(--measure) + var(--gutter) + var(--margin)
+  );
+
+  /* One 1.25 ladder, used everywhere. Nothing is sized off the ladder. */
+  --f0: 0.72rem;
+  --f1: 0.9rem;
+  --f2: 1.1875rem;
+  --f3: 1.406rem;
+  --f4: 1.758rem;
+  --f5: 2.197rem;
+  --f6: 2.747rem;
+  --f7: 3.433rem;
+
+  /* Newsreader for text (a screen-first editorial serif with an optical-size
+     axis, so headlines get a genuine display cut), IBM Plex Mono for data and
+     code. Both self-hosted in /fonts — no external requests. */
+  --serif: Newsreader, Charter, "Iowan Old Style", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+}
+
+/* Follow the reader's system setting — unless they have explicitly asked for
+   light, in which case the guard below keeps them there. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: var(--paper-dark);
+    --ink: var(--ink-dark);
+    --muted: var(--muted-dark);
+    --faint: var(--faint-dark);
+    --tint: var(--tint-dark);
+    --accent: var(--accent-dark);
+    --code-bg: var(--code-bg-dark);
+
+    color-scheme: dark;
+  }
+}
+
+/* An explicit choice wins in both directions, whatever the system says. */
+:root[data-theme="dark"] {
+  --paper: var(--paper-dark);
+  --ink: var(--ink-dark);
+  --muted: var(--muted-dark);
+  --faint: var(--faint-dark);
+  --tint: var(--tint-dark);
+  --accent: var(--accent-dark);
+  --code-bg: var(--code-bg-dark);
+
+  color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------ base */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--f2);
+  line-height: 1.65;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--serif);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+p {
+  margin: 0 0 1.15rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip:focus {
+  left: 1.5rem;
+  top: 1.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--paper);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+/* ------------------------------------------------------------------ page */
+
+.page {
+  display: grid;
+  grid-template-columns: var(--masthead) minmax(0, 1fr);
+  grid-template-rows: max-content 1fr;
+  column-gap: var(--stile);
+  /* border-box means the padding has to be added on, or the columns overflow. */
+  max-width: calc(var(--page) + 3rem);
+  margin-inline: auto;
+  padding: 3.25rem 1.5rem 3rem;
+}
+
+/* The masthead is a standing column, not a banner. */
+.masthead {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+main {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  min-width: 0;
+}
+
+.colophon {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: start;
+  margin-top: 3.5rem;
+}
+
+/* -------------------------------------------------------------- masthead */
+
+.wordmark {
+  margin: 0;
+  font-size: var(--f3);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.wordmark a {
+  color: var(--ink);
+}
+
+.tagline {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+  font-size: var(--f1);
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.masthead-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.1rem;
+  margin-top: 2.1rem;
+  font-family: var(--mono);
+  font-size: var(--f0);
+  letter-spacing: 0.02em;
+}
+
+.masthead-nav a {
+  color: var(--ink);
+}
+
+/* Where you are is shown by dimming the rest, not by marking this one. */
+.masthead-nav a:not(.is-current),
+.wordmark a,
+.colophon a {
+  color: var(--muted);
+}
+
+.wordmark a {
+  color: var(--ink);
+}
+
+.masthead a:hover,
+.colophon a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.colophon {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--f0);
+  line-height: 1.7;
+}
+
+.colophon p {
+  margin: 0.75rem 0 0;
+  opacity: 0.7;
+}
+
+.colophon nav {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.1rem;
+}
+
+/* ----------------------------------------------------------- theme switch */
+
+/* Hidden until the script runs, so it is never a dead control. Which mode is
+   active is shown the same way the nav shows the current page: ink for here,
+   muted for elsewhere. */
+.theme {
+  display: none;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.js .theme {
+  display: flex;
+}
+
+.theme button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.theme button.is-current {
+  color: var(--ink);
+}
+
+.theme button:hover {
+  color: var(--accent);
+}
+
+.theme button:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------ annotation margin */
+
+/* Set in the margin to the right of the text, level with the block below it.
+   The negative margin exceeds the note's width, so text never wraps around. */
+.margin,
+.sidenote {
+  float: right;
+  clear: right;
+  width: var(--margin);
+  margin-right: calc(-1 * (var(--margin) + var(--gutter)));
+  color: var(--muted);
+}
+
+.margin {
+  margin-bottom: 1rem;
+  font-family: var(--mono);
+  font-size: var(--f0);
+  line-height: 1.45;
+}
+
+.margin p {
+  margin: 0;
+}
+
+.margin-meta {
+  margin-top: 0.7rem;
+}
+
+.margin-tags,
+.prose .margin-tags {
+  list-style: none;
+  margin: 0.55rem 0 0;
+  padding: 0;
+}
+
+.margin-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.4rem;
+}
+
+.margin-tags li + li {
+  margin-top: 0;
+}
+
+.margin-tags a,
+.prose .margin a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.margin-tags li + li::before {
+  content: "·";
+  margin-right: 0.4rem;
+  color: var(--faint);
+}
+
+.margin-tags a:hover,
+.prose .margin a:hover {
+  color: var(--accent);
+}
+
+.stamp {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------- headlines */
+
+.display {
+  max-width: var(--measure);
+  margin: 0 0 1rem;
+  font-weight: 700;
+  font-size: var(--f6);
+  letter-spacing: -0.028em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+.display a,
+.entry-title a {
+  color: var(--ink);
+}
+
+.display a:hover,
+.entry-title a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.tag-title::before {
+  content: "#";
+  color: var(--faint);
+  font-weight: 400;
+}
+
+.tag-count {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--f0);
+}
+
+/* ----------------------------------------------------------------- index */
+
+.entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.entry {
+  max-width: var(--measure);
+}
+
+.entry + .entry {
+  margin-top: 2.75rem;
+}
+
+.entry {
+  max-width: none;
+}
+
+/* The heading carries no size of its own; the title span does. */
+.entry-heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 400;
+}
+
+/* Title and date share a baseline, joined by a leader. */
+.leader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  color: var(--ink);
+}
+
+.leader:hover {
+  text-decoration: none;
+}
+
+.leader:hover .leader-title {
+  color: var(--accent);
+}
+
+.leader-fill {
+  flex: 1 1 1.5rem;
+  min-width: 1.5rem;
+}
+
+/* The date column starts on the same x as the article margin, so the index
+   and the article share one right-hand edge. */
+.leader-meta {
+  flex: none;
+  width: var(--margin);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--f0);
+  line-height: 1.45;
+}
+
+.leader-date {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+
+.leader-read {
+  display: block;
+}
+
+.leader-title {
+  flex: 0 1 auto;
+}
+
+.entries .display {
+  max-width: none;
+  margin: 0;
+  font-size: var(--f6);
+  letter-spacing: -0.026em;
+}
+
+.entries-lead {
+  margin-bottom: 2.75rem;
+}
+
+/* The label sits in the annotation margin, like every other label on the
+   site, rather than becoming a full-width divider across the text. */
+/* Built from the same row as an index entry, so the label lands in the date
+   column exactly, without a float stealing width from the row below it. */
+.section-label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 0 0 1.4rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--f0);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.entry-title {
+  margin: 0;
+  font-size: var(--f3);
+  font-weight: 700;
+  letter-spacing: -0.012em;
+}
+
+.entry-excerpt {
+  max-width: var(--measure);
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-size: var(--f1);
+}
+
+.display ~ .entry-excerpt {
+  font-size: var(--f2);
+}
+
+.empty {
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ prose */
+
+.prose,
+.post .display {
+  max-width: var(--measure);
+}
+
+.post .display {
+  max-width: none;
+  margin-bottom: 2rem;
+  font-size: var(--f7);
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+
+.prose > *:first-child {
+  margin-top: 0;
+}
+
+/* An opening paragraph at deck size gives the scale its missing middle step. */
+.prose > p:first-of-type {
+  margin-bottom: 1.6rem;
+  font-size: var(--f3);
+  line-height: 1.45;
+}
+
+/* Sections separate by space, not by rules. */
+.prose h2 {
+  margin: 4rem 0 0.9rem;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: var(--f1);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Subheads change voice instead of size — italic, the way print does it. */
+.prose h3 {
+  margin: 2.25rem 0 0.4rem;
+  font-size: var(--f3);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.prose ul,
+.prose ol {
+  margin: 0 0 1.3rem;
+  padding-left: 1.2rem;
+}
+
+.prose li + li {
+  margin-top: 0.35rem;
+}
+
+.prose li::marker {
+  color: var(--muted);
+}
+
+.prose a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+  text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.prose a:hover {
+  text-decoration-color: currentColor;
+}
+
+.prose img,
+.prose video {
+  max-width: 100%;
+  height: auto;
+}
+
+.prose blockquote {
+  margin: 1.6rem 0;
+  padding-left: 1.5rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.prose hr {
+  margin: 3rem 0;
+  border: 0;
+  border-top: 1px solid var(--faint);
+}
+
+/* Inline code is a change of voice; a block is an object, set on a tint and
+   inset from the text. */
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
+
+.prose pre {
+  margin: 0.9rem 0 1.9rem;
+  padding: 1rem 1.15rem;
+  overflow-x: auto;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  /* The block is dark even on a light page, so its scrollbar should be too. */
+  color-scheme: dark;
+  font-size: var(--f0);
+  line-height: 1.75;
+}
+
+.prose pre code {
+  font-size: inherit;
+}
+
+.prose table {
+  width: 100%;
+  margin: 1rem 0 2rem;
+  border-collapse: collapse;
+  font-size: var(--f1);
+  table-layout: fixed;
+}
+
+.prose th:first-child,
+.prose td:first-child {
+  width: 8.5rem;
+}
+
+.prose th,
+.prose td {
+  padding: 0.45rem 1rem 0.45rem 0;
+  border-bottom: 1px solid var(--faint);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: break-word;
+}
+
+.prose th {
+  border-bottom-color: var(--faint);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--f0);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------- sidenotes */
+
+/* Tufte's own convention: the reference pair is set in the accent, which is
+   what makes the margin legible as commentary at a glance. */
+.note-mark,
+.note-num {
+  position: relative;
+  top: -0.42em;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 0;
+}
+
+.note-mark {
+  cursor: pointer;
+  padding-left: 0.1em;
+}
+
+.note-toggle {
+  display: none;
+}
+
+.sidenote {
+  margin-bottom: 1.2rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.note-num {
+  margin-right: 0.35em;
+}
+
+/* ----------------------------------------------------------------- pager */
+
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  max-width: var(--measure);
+  margin-top: 5.5rem;
+}
+
+.pager a {
+  max-width: 47%;
+  font-size: var(--f1);
+}
+
+.pager-next {
+  margin-left: auto;
+  text-align: right;
+}
+
+.pager span {
+  display: block;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--f0);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------- narrow */
+
+/* Below the width that fits three zones, the masthead lies down across the
+   top, annotations fold into the text, and a sidenote opens where you tap it. */
+@media (max-width: 64rem) {
+  :root {
+    --margin: 0rem;
+    --gutter: 0rem;
+    --page: var(--measure);
+  }
+
+  body {
+    font-size: 1.0625rem;
+  }
+
+  .page {
+    display: block;
+    min-height: 0;
+    padding-top: 2.5rem;
+  }
+
+  .masthead {
+    position: static;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.4rem 2rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .tagline {
+    grid-column: 1;
+    margin-top: 0;
+  }
+
+  .masthead-nav {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    flex-direction: row;
+    gap: 1.1rem;
+    margin-top: 0;
+  }
+
+  .colophon {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    margin-top: 4.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--faint);
+  }
+
+  .colophon p {
+    margin: 0;
+  }
+
+  .colophon nav {
+    flex-direction: row;
+    gap: 1.25rem;
+  }
+
+  .js .theme {
+    margin-top: 0;
+  }
+
+  .margin {
+    float: none;
+    width: auto;
+    margin: 0 0 0.3rem;
+  }
+
+  .margin-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 1.25rem;
+    margin: 0 0 1.75rem;
+  }
+
+  .margin-tags {
+    display: flex;
+    gap: 0 1rem;
+    margin: 0;
+  }
+
+  .display {
+    font-size: var(--f5);
+  }
+
+  .sidenote {
+    display: none;
+    float: none;
+    width: auto;
+    margin: 0.9rem 0;
+    padding-left: 1rem;
+    border-left: 1px solid var(--faint);
+  }
+
+  .note-toggle:checked + .sidenote {
+    display: block;
+  }
+}
+
+@media (max-width: 34rem) {
+  .display {
+    font-size: var(--f4);
+  }
+
+  .prose th:first-child,
+  .prose td:first-child {
+    width: 6.5rem;
+  }
+}
