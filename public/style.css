@@ -117,6 +117,9 @@ body {
   font-optical-sizing: auto;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  /* A bare URL is one long unbreakable word; without this it pushes the whole
+     page sideways on a phone. Inherited, so it covers titles and prose alike. */
+  overflow-wrap: break-word;
 }
 
 a {
@@ -172,8 +175,26 @@ p {
   column-gap: var(--stile);
   /* border-box means the padding has to be added on, or the columns overflow. */
   max-width: calc(var(--page) + 3rem);
+  /* Full window height so the margin rule runs the whole way down, even when
+     a page is short. */
+  min-height: 100vh;
   margin-inline: auto;
   padding: 3.25rem 1.5rem 3rem;
+  position: relative;
+}
+
+/* The margin rule, as on ruled paper: one hairline down the gutter between
+   the masthead column and the text. It is the only line on the page that is
+   not separating two things, and it is what keeps a short page from reading
+   as empty. */
+.page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(1.5rem + var(--masthead) + var(--stile) / 2);
+  width: 1px;
+  background: var(--faint);
 }
 
 /* The masthead is a standing column, not a banner. */
@@ -643,7 +664,9 @@ main {
 }
 
 .prose table {
+  display: block;
   width: 100%;
+  overflow-x: auto;
   margin: 1rem 0 2rem;
   border-collapse: collapse;
   font-size: var(--f1);
@@ -758,13 +781,17 @@ main {
     padding-top: 2.5rem;
   }
 
+  .page::before {
+    display: none;
+  }
+
   .masthead {
     position: static;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: baseline;
-    gap: 0.4rem 2rem;
-    margin-bottom: 3.5rem;
+    gap: 0.4rem 1.5rem;
+    margin-bottom: 2.75rem;
   }
 
   .tagline {
@@ -809,6 +836,28 @@ main {
     margin: 0 0 0.3rem;
   }
 
+  /* An index row stops being title-then-date-across and becomes a small date
+     line above the title. Without this the date keeps the width of a margin
+     column that is now zero, and its text spills off the screen. */
+  .leader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .leader-fill {
+    display: none;
+  }
+
+  .leader-meta {
+    order: -1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0 0.9rem;
+    width: auto;
+  }
+
   .margin-meta {
     display: flex;
     flex-wrap: wrap;
@@ -844,6 +893,12 @@ main {
 @media (max-width: 34rem) {
   .display {
     font-size: var(--f4);
+  }
+
+  /* The opening paragraph keeps a step above body text, but a smaller one —
+     at this width the full deck size swallows the screen. */
+  .prose > p:first-of-type {
+    font-size: 1.1875rem;
   }
 
   .prose th:first-child,

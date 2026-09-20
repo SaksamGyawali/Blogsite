@@ -67,6 +67,27 @@ is a checkbox and a CSS rule, not JavaScript.
 Home page, one page per post, one page per tag plus a tag index, standalone
 pages, `404.html`, `feed.xml` (RSS), `sitemap.xml`, and `robots.txt`.
 
+## The RSS feed
+
+`feed.xml` is a machine-readable copy of your posts. Someone pastes your site
+into a reader app (NetNewsWire, Feedly, Reeder, Thunderbird) and your new posts
+show up there — no account, no algorithm, no email list. It is the oldest and
+quietest way to let people follow a blog, and it costs you nothing: the build
+writes it every time.
+
+It is wired up in three places, all automatic:
+
+- `feed.xml` at the site root, rebuilt on every `npm run build`
+- a `<link rel="alternate">` in every page's `<head>`, so readers and browser
+  extensions find it without being told
+- the **RSS** link in the footer, for people who want to copy the address
+
+Each item carries the full post, not just an excerpt, so it can be read inside
+the reader. Root-relative links are rewritten to absolute ones on the way in,
+because a reader has no idea what `/tags/essay/` would mean.
+
+Nothing to maintain. Write a post, push, and subscribers get it.
+
 ## Deploying
 
 The build output is a plain folder of files, so any static host works. This

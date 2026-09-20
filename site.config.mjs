@@ -26,7 +26,7 @@ export default {
 
   // Links in the footer.
   social: [
-    { label: 'GitHub', href: 'https://github.com/sg03230122-spec' },
+    { label: 'GitHub', href: 'https://github.com/SaksamGyawali' },
     { label: 'RSS', href: '/feed.xml' },
   ],
 

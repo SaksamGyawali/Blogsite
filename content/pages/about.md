@@ -8,5 +8,5 @@ to the world.
 
 ## Elsewhere
 
-- [GitHub](https://github.com/sg03230122-spec)
+- [GitHub](https://github.com/SaksamGyawali)
 - [RSS](/feed.xml)

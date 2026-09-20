@@ -170,6 +170,18 @@ function parsePage({ name, raw }) {
 
 /* ------------------------------------------------------------------ feeds */
 
+/**
+ * A feed reader has no idea what "/tags/essay/" points at, so every
+ * root-relative link and image in the full-text copy is made absolute.
+ */
+const absolutise = (html) =>
+  html
+    .replace(/href="\//g, `href="${site.url}/`)
+    .replace(/src="\//g, `src="${site.url}/`);
+
+/** Wrap post HTML for CDATA, escaping any literal ]]> inside it. */
+const cdata = (html) => `<![CDATA[${html.replace(/]]>/g, ']]]]><![CDATA[>')}]]>`;
+
 function renderFeed(posts) {
   const items = posts
     .slice(0, 20)
@@ -179,13 +191,15 @@ function renderFeed(posts) {
     <link>${T.esc(p.url)}</link>
     <guid isPermaLink="true">${T.esc(p.url)}</guid>
     <pubDate>${p.date.toUTCString()}</pubDate>
+${p.tags.map((t) => `    <category>${T.esc(t.name)}</category>`).join('\n')}
     <description>${T.esc(p.excerpt)}</description>
+    <content:encoded>${cdata(absolutise(p.html))}</content:encoded>
   </item>`
     )
     .join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
   <title>${T.esc(site.title)}</title>
   <link>${T.esc(site.url)}</link>
