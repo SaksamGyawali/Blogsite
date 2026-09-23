@@ -2,8 +2,9 @@
 title: "Reuse The Response"
 date: 2026-09-19
 tags: [BadReads]
-description: "Reusing the Response For Regulated Resource Utilization"
+description: "Reusing the Response For Regulated Resource Utilization: Why shouldn't there be a shared semantic cache or even storage for common AI questions across all models?"
 ---
+
 
 
 I was thinking of efficient utilization of resources like electricity and water for AI usage.
